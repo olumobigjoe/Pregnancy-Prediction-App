@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 import joblib
-#import pickle
+import pickle
 
 # Read CSV file
 data = pd.read_excel("C:/Users/ADMIN/Desktop/Streamlit/ML/DATASET__ART.csv.xlsx")
@@ -41,6 +41,7 @@ joblib.dump(model, filename="pregnancy_outcome.pkl")
 
 # Load the trained model (for testing purpose)
 model = joblib.load('pregnancy_outcome.pkl')
+
 
 
 

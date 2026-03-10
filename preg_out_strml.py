@@ -64,28 +64,29 @@ if st.button("Predict Outcome"):
 
 # RESULT
 # Add a selectbox to the sidebar:
-st.sidebar.success("**RECORD UPDATE**")
+#st.sidebar.success("**RECORD UPDATE**")
 
 
-st.sidebar.text_input("Patient's ID", key="name")
-st.session_state.name
+#st.sidebar.text_input("Patient's ID", key="name")
+#st.session_state.name
 
-st.sidebar.text_input("Patient's Address/City", key="address")
-st.session_state.address
+#st.sidebar.text_input("Patient's Address/City", key="address")
+#st.session_state.address
 
-st.sidebar.text_input("Email", key="email")
-st.session_state.email
+#st.sidebar.text_input("Email", key="email")
+#st.session_state.email
 
 #st.divider()
 
 
 
-st.sidebar.success("FEEDBACK")
+#st.sidebar.success("FEEDBACK")
 
 
-add_selectbox = st.sidebar.multiselect(
-    "ART Experience/Review",
-    ('Very Satisfied', 'Satisfied', 'Not Satisfied', 'Neutral')
-)
+#add_selectbox = st.sidebar.multiselect(
+ #   "ART Experience/Review",
+   # ('Very Satisfied', 'Satisfied', 'Not Satisfied', 'Neutral')
+#)
 
+st.balloons()  # Celebration balloons
 st.balloons()  # Celebration balloons

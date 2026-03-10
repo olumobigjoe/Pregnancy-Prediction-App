@@ -2,7 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import joblib
-#import pickle
+import pickle
 
 st.markdown(
     """
@@ -52,5 +52,6 @@ if st.button("Predict Outcome"):
         st.success("The predicted outcome is: Yes (Pregnancy Successful)")
     else:
         st.error("The predicted outcome is: No (Pregnancy Unsuccessful)")   
+
 
 

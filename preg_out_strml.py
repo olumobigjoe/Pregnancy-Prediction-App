@@ -26,6 +26,7 @@ st.markdown(
     }
     </style>
     """, unsafe_allow_html=True)
+st.set_page_config(page_title="Pregnancy Outcome App", layout="centered")
 
 #Load the trained modl
 model = joblib.load('pregnancy_outcome.pkl')
@@ -51,4 +52,5 @@ if st.button("Predict Outcome"):
         st.success("The predicted outcome is: Yes (Pregnancy Successful)")
     else:
         st.error("The predicted outcome is: No (Pregnancy Unsuccessful)")   
+
 

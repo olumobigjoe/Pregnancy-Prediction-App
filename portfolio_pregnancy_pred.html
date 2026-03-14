@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pregnancy Outcome Predictor — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&family=Mulish:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0b1f3a;--navy2:#112a4e;--navy3:#1a3c6e;
+  --rose:#e8405a;--rose-lt:#fde8eb;--rose-dk:#9e1a2e;
+  --teal:#0f8c7a;--teal-lt:#d4f4ef;--teal-dk:#085041;
+  --white:#ffffff;--paper:#f8f7f4;--cream:#f0ede6;
+  --line:#e4e0d8;--ink:#0d1117;--mid:#4a5568;--soft:#8896a8;
+  --serif:'Cormorant Garamond',serif;
+  --mono:'DM Mono',monospace;
+  --sans:'Mulish',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);
+  font-size:16px;line-height:1.7;overflow-x:hidden}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:200;background:rgba(11,31,58,.96);
+  backdrop-filter:blur(12px);padding:0 52px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.nav-brand{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:#7ec8c0}
+.nav-links{display:flex;gap:28px}
+.nav-links a{font-size:13px;color:rgba(255,255,255,.5);text-decoration:none;
+  letter-spacing:.03em;font-weight:500;transition:color .15s}
+.nav-links a:hover{color:rgba(255,255,255,.9)}
+.nav-cta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  padding:7px 18px;border:1px solid rgba(232,64,90,.5);border-radius:4px;
+  color:var(--rose);text-decoration:none;transition:all .15s}
+.nav-cta:hover{background:var(--rose);color:white;border-color:var(--rose)}
+
+/* ── HERO ── */
+.hero{background:var(--navy);color:white;position:relative;
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;overflow:hidden;padding:0 52px}
+
+/* ECG SVG background */
+.ecg-bg{position:absolute;inset:0;z-index:0;opacity:.12}
+.hero-inner{position:relative;z-index:1;max-width:1100px;margin:0 auto;width:100%}
+
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;
+  color:var(--rose);text-transform:uppercase;margin-bottom:28px;
+  display:flex;align-items:center;gap:10px}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);
+  animation:pulse 1.8s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.3;transform:scale(.6)}}
+
+h1{font-family:var(--serif);font-size:clamp(3rem,6vw,5rem);
+  line-height:1.08;letter-spacing:-.015em;font-weight:600;margin-bottom:22px}
+h1 em{font-style:italic;color:#7ec8c0}
+h1 .sub{display:block;font-size:.6em;font-weight:400;
+  color:rgba(255,255,255,.45);font-style:normal;margin-top:8px;
+  border-top:1px solid rgba(255,255,255,.12);padding-top:14px}
+
+.hero-desc{font-size:1.05rem;color:rgba(255,255,255,.6);font-weight:300;
+  max-width:580px;line-height:1.8;margin-bottom:44px}
+
+/* Metric pills */
+.hero-metrics{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:48px}
+.hm{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:10px 18px;text-align:center;min-width:110px}
+.hm-v{font-family:var(--mono);font-size:1.3rem;font-weight:500;color:var(--white)}
+.hm-l{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.06em;margin-top:2px}
+
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;
+  border-radius:6px;font-family:var(--sans);font-size:.88rem;font-weight:600;
+  text-decoration:none;cursor:pointer;transition:all .15s;letter-spacing:.02em}
+.btn-rose{background:var(--rose);color:white;border:none}
+.btn-rose:hover{background:var(--rose-dk)}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.8);
+  border:1.5px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{border-color:rgba(255,255,255,.55)}
+
+/* ECG animated line */
+.ecg-line{position:absolute;bottom:0;left:0;right:0;height:80px;z-index:1}
+.ecg-line svg{width:100%;height:100%}
+.ecg-path{stroke:var(--rose);stroke-width:1.5;fill:none;
+  stroke-dasharray:2000;stroke-dashoffset:2000;
+  animation:draw 3s ease forwards 0.5s}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* ── DIVIDER ── */
+hr.div{border:none;border-top:1px solid var(--line);margin:0}
+
+/* ── SECTIONS ── */
+.section{max-width:1100px;margin:0 auto;padding:88px 52px}
+.sec-tag{font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+  color:var(--rose);text-transform:uppercase;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px}
+.sec-tag::before{content:'';width:18px;height:1.5px;background:var(--rose)}
+h2{font-family:var(--serif);font-size:clamp(2rem,3.5vw,2.8rem);
+  font-weight:600;line-height:1.15;letter-spacing:-.01em;margin-bottom:48px}
+
+/* ── ABOUT GRID ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.about-text p{font-size:.95rem;color:var(--mid);line-height:1.85;margin-bottom:16px}
+.about-text p:last-child{margin-bottom:0}
+.about-highlight{background:var(--navy);color:white;border-radius:14px;
+  padding:28px;margin-top:24px}
+.ah-title{font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  color:#7ec8c0;text-transform:uppercase;margin-bottom:16px}
+.ah-item{display:flex;justify-content:space-between;align-items:center;
+  padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:.85rem}
+.ah-item:last-child{border-bottom:none}
+.ah-key{color:rgba(255,255,255,.5)}
+.ah-val{color:white;font-weight:600;font-family:var(--mono);font-size:.83rem}
+
+/* ── FEATURES GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);
+  border-radius:16px;overflow:hidden}
+.feat-cell{background:var(--white);padding:28px 24px;transition:background .2s}
+.feat-cell:hover{background:var(--rose-lt)}
+.feat-num{font-family:var(--mono);font-size:11px;color:var(--soft);
+  letter-spacing:.1em;margin-bottom:14px;display:block}
+.feat-icon{width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;font-size:18px}
+.fi-rose{background:var(--rose-lt)}
+.fi-teal{background:var(--teal-lt)}
+.fi-navy{background:#e8edf5}
+.feat-title{font-family:var(--sans);font-size:.98rem;font-weight:600;
+  margin-bottom:8px;color:var(--ink)}
+.feat-desc{font-size:.83rem;color:var(--mid);line-height:1.65}
+
+/* ── MODEL METRICS ── */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:32px}
+.mc{background:var(--white);border:1px solid var(--line);
+  border-radius:12px;padding:22px 18px;text-align:center;
+  transition:transform .2s,border-color .2s}
+.mc:hover{transform:translateY(-3px);border-color:var(--rose)}
+.mc-val{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--navy)}
+.mc-lbl{font-size:11px;color:var(--soft);letter-spacing:.06em;margin-top:6px}
+.mc-note{font-size:10px;color:var(--soft);margin-top:4px;font-style:italic}
+
+/* ── CONFUSION MATRIX ── */
+.cm-wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:start}
+.cm-table{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cm-table table{width:100%;border-collapse:collapse;font-size:.82rem}
+.cm-table th{background:var(--navy);color:white;padding:10px 14px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.08em;font-weight:400}
+.cm-table td{padding:16px 14px;border-bottom:1px solid var(--line);
+  text-align:center;font-family:var(--mono);font-size:.9rem;font-weight:600}
+.cm-tn{background:#d4f4ef;color:var(--teal-dk)}
+.cm-fp{background:#fde8eb;color:var(--rose-dk)}
+.cm-fn{background:#fde8eb;color:var(--rose-dk)}
+.cm-tp{background:#d4f4ef;color:var(--teal-dk)}
+.cm-side{display:flex;flex-direction:column;gap:12px}
+.cm-card{background:var(--white);border:1px solid var(--line);
+  border-radius:10px;padding:16px 18px}
+.cm-card-val{font-family:var(--mono);font-size:1.4rem;font-weight:500;margin-bottom:4px}
+.cm-card-lbl{font-size:.78rem;color:var(--mid);line-height:1.5}
+.val-teal{color:var(--teal)}
+.val-rose{color:var(--rose)}
+
+/* ── FEATURE IMPORTANCE ── */
+.fi-list{display:flex;flex-direction:column;gap:14px}
+.fi-item{display:grid;grid-template-columns:160px 1fr 60px;
+  gap:12px;align-items:center}
+.fi-name{font-size:.85rem;font-weight:600;color:var(--ink)}
+.fi-bar-outer{background:var(--cream);border-radius:100px;height:10px}
+.fi-bar-inner{height:10px;border-radius:100px;transition:width .8s ease}
+.fi-pct{font-family:var(--mono);font-size:.8rem;color:var(--mid);text-align:right}
+
+/* ── TECH STACK ── */
+.stack-grid{display:flex;flex-wrap:wrap;gap:12px}
+.stack-pill{display:flex;align-items:center;gap:10px;padding:12px 18px;
+  background:var(--white);border:1px solid var(--line);border-radius:10px;
+  transition:all .15s}
+.stack-pill:hover{border-color:var(--teal);transform:translateY(-2px)}
+.stack-emoji{font-size:18px;line-height:1}
+.stack-info .sn{font-weight:600;font-size:.88rem}
+.stack-info .sr{font-size:.72rem;color:var(--soft);font-family:var(--mono)}
+
+/* ── CODE BLOCK ── */
+.code-wrap{background:var(--navy);border-radius:12px;overflow:hidden;margin-top:10px}
+.code-bar{display:flex;align-items:center;gap:6px;padding:11px 18px;
+  background:rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.07)}
+.cd{width:10px;height:10px;border-radius:50%}
+.cd-r{background:#ff5f57}.cd-y{background:#febc2e}.cd-g{background:#28c840}
+.code-fn{margin-left:auto;font-family:var(--mono);font-size:11px;
+  color:rgba(255,255,255,.3)}
+pre{padding:24px;overflow-x:auto;font-family:var(--mono);
+  font-size:12.5px;line-height:1.85;color:rgba(255,255,255,.75)}
+.ck{color:#c792ea}.cf{color:#7ec8c0}.cs{color:#f9c859}
+.cc{color:rgba(255,255,255,.28);font-style:italic}.cn{color:#f78c6c}
+
+/* ── FUTURE WORK ── */
+.fw-list{display:flex;flex-direction:column;gap:0;
+  border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fw-item{display:flex;gap:16px;padding:18px 22px;
+  border-bottom:1px solid var(--line);align-items:flex-start;
+  background:var(--white);transition:background .15s}
+.fw-item:last-child{border-bottom:none}
+.fw-item:hover{background:var(--cream)}
+.fw-badge{padding:3px 10px;border-radius:4px;font-family:var(--mono);
+  font-size:10px;font-weight:500;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.fw-high{background:#fde8eb;color:var(--rose-dk)}
+.fw-med{background:#faeeda;color:#633806}
+.fw-low{background:var(--teal-lt);color:var(--teal-dk)}
+.fw-title{font-weight:600;font-size:.88rem;margin-bottom:3px}
+.fw-desc{font-size:.8rem;color:var(--mid);line-height:1.6}
+
+/* ── HEADLINE BOX ── */
+.hl-box{background:var(--navy);border-radius:16px;padding:36px 44px;
+  position:relative;overflow:hidden;margin-bottom:40px}
+.hl-box::after{content:'';position:absolute;right:-40px;top:-40px;
+  width:200px;height:200px;border-radius:50%;
+  background:rgba(232,64,90,.12)}
+.hl-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:rgba(255,255,255,.4);text-transform:uppercase;margin-bottom:14px}
+.hl-text{font-family:var(--serif);font-size:clamp(1.2rem,2vw,1.7rem);
+  color:white;line-height:1.4;font-style:italic;position:relative;z-index:1}
+.hl-text strong{font-style:normal;font-family:var(--sans);
+  font-weight:700;color:#7ec8c0}
+.hl-variants{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:20px}
+.hl-v{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:16px 18px;cursor:pointer;
+  transition:background .15s;position:relative}
+.hl-v.rec{border-color:rgba(126,200,192,.4);background:rgba(126,200,192,.08)}
+.hl-v.rec::before{content:'Recommended';position:absolute;top:-10px;left:14px;
+  background:#7ec8c0;color:var(--navy);font-size:9px;font-family:var(--mono);
+  padding:2px 8px;border-radius:3px;font-weight:600;letter-spacing:.06em}
+.hl-vtag{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
+  color:rgba(255,255,255,.35);text-transform:uppercase;margin-bottom:8px}
+.hl-vtext{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.8);
+  line-height:1.5}
+.copy-btn{margin-top:16px;font-family:var(--mono);font-size:11px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);
+  border-radius:5px;padding:8px 16px;color:rgba(255,255,255,.6);
+  cursor:pointer;display:inline-flex;align-items:center;gap:7px;
+  transition:all .15s;position:relative;z-index:1}
+.copy-btn:hover{background:rgba(255,255,255,.14)}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);color:rgba(255,255,255,.4);
+  text-align:center;padding:52px;border-top:1px solid rgba(255,255,255,.07);
+  font-size:.82rem}
+footer a{color:#7ec8c0;text-decoration:none}
+footer a:hover{text-decoration:underline}
+.footer-brand{font-family:var(--serif);font-size:1.6rem;
+  color:rgba(255,255,255,.8);margin-bottom:8px}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(22px);
+  transition:opacity .55s ease,transform .55s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  nav{padding:0 24px}.hero,.section{padding-left:24px;padding-right:24px}
+  .hero{padding-top:80px;min-height:auto;padding-bottom:60px}
+  .about-grid,.cm-wrap{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr}
+  .metrics-grid{grid-template-columns:1fr 1fr}
+  .hl-variants{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .fi-item{grid-template-columns:130px 1fr 50px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-brand">Ibukun.ml / pregnancy-predictor</span>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#results">Results</a>
+    <a href="#headline">LinkedIn</a>
+  </div>
+  <a href="https://github.com/yourusername/pregnancy-prediction-app" class="nav-cta" target="_blank">GitHub ↗</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <svg class="ecg-bg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <rect width="100%" height="100%" fill="none"/>
+    <line x1="0" y1="450" x2="1440" y2="450" stroke="rgba(126,200,192,.15)" stroke-width="1"/>
+    <line x1="0" y1="225" x2="1440" y2="225" stroke="rgba(126,200,192,.08)" stroke-width="1"/>
+    <line x1="0" y1="675" x2="1440" y2="675" stroke="rgba(126,200,192,.08)" stroke-width="1"/>
+    <line x1="360" y1="0" x2="360" y2="900" stroke="rgba(126,200,192,.08)" stroke-width="1"/>
+    <line x1="720" y1="0" x2="720" y2="900" stroke="rgba(126,200,192,.08)" stroke-width="1"/>
+    <line x1="1080" y1="0" x2="1080" y2="900" stroke="rgba(126,200,192,.08)" stroke-width="1"/>
+  </svg>
+
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <span class="pulse-dot"></span>
+      Machine Learning · ART / IVF · Clinical Prediction
+    </div>
+    <h1>
+      Predicting <em>Pregnancy</em><br>with Machine Learning
+      <span class="sub">Random Forest Classifier &nbsp;·&nbsp; 604 IVF Patient Records &nbsp;·&nbsp; Streamlit App</span>
+    </h1>
+    <p class="hero-desc">
+      A clinical decision-support tool that predicts the probability of a successful IVF pregnancy
+      using six patient and embryological features — deployed as a live Streamlit web application.
+    </p>
+    <div class="hero-metrics">
+      <div class="hm"><div class="hm-v">604</div><div class="hm-l">Patients</div></div>
+      <div class="hm"><div class="hm-v">70.3%</div><div class="hm-l">Accuracy</div></div>
+      <div class="hm"><div class="hm-v">0.586</div><div class="hm-l">ROC-AUC</div></div>
+      <div class="hm"><div class="hm-v">72.7%</div><div class="hm-l">CV Score</div></div>
+      <div class="hm"><div class="hm-v">6</div><div class="hm-l">Features</div></div>
+      <div class="hm"><div class="hm-v">11 yrs</div><div class="hm-l">Data span</div></div>
+    </div>
+    <div class="hero-btns">
+      <a href="https://github.com/yourusername/pregnancy-prediction-app" class="btn btn-rose" target="_blank">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.7 18 5 18 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+        View on GitHub
+      </a>
+      <a href="#results" class="btn btn-ghost">See model results ↓</a>
+    </div>
+  </div>
+
+  <!-- Animated ECG line at bottom of hero -->
+  <div class="ecg-line">
+    <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+      <path class="ecg-path"
+        d="M0,40 L60,40 L80,40 L90,15 L100,65 L110,10 L120,70 L130,40 L160,40
+           L220,40 L240,40 L250,18 L260,62 L270,12 L280,68 L290,40 L320,40
+           L380,40 L400,40 L410,20 L420,60 L430,14 L440,66 L450,40 L480,40
+           L540,40 L560,40 L570,22 L580,58 L590,16 L600,64 L610,40 L640,40
+           L700,40 L720,40 L730,24 L740,56 L750,18 L760,62 L770,40 L800,40
+           L860,40 L880,40 L890,26 L900,54 L910,20 L920,60 L930,40 L960,40
+           L1020,40 L1040,40 L1050,28 L1060,52 L1070,22 L1080,58 L1090,40 L1120,40
+           L1180,40 L1200,40 L1210,30 L1220,50 L1230,24 L1240,56 L1250,40 L1280,40
+           L1340,40 L1360,40 L1370,32 L1380,48 L1390,26 L1400,54 L1410,40 L1440,40"/>
+    </svg>
+  </div>
+</div>
+
+<hr class="div"/>
+
+<!-- ABOUT -->
+<section class="section reveal" id="about">
+  <div class="sec-tag">About the project</div>
+  <h2>Clinical AI for<br>Reproductive Medicine</h2>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Assisted Reproductive Technology (ART) — particularly In Vitro Fertilisation (IVF) — is one of the most emotionally and clinically complex areas of modern medicine. Predicting which patients will achieve a successful pregnancy helps clinicians counsel patients, allocate resources, and design better treatment protocols.</p>
+      <p>This project applies a <strong>Random Forest Classifier</strong> to 604 real IVF patient records collected over 11 years (2010–2021), using six clinical and embryological features to predict the binary outcome: pregnancy achieved (1) or not (0).</p>
+      <p>The trained model is deployed as a <strong>Streamlit web application</strong>, providing an interactive interface where clinicians or researchers can input patient parameters and receive an instant probability-based prediction with confidence scores.</p>
+    </div>
+    <div>
+      <div class="about-highlight">
+        <div class="ah-title">Dataset at a glance</div>
+        <div class="ah-item"><span class="ah-key">Total patients</span><span class="ah-val">604</span></div>
+        <div class="ah-item"><span class="ah-key">Date range</span><span class="ah-val">2010 – 2021</span></div>
+        <div class="ah-item"><span class="ah-key">Positive class (pregnancy)</span><span class="ah-val">143 (23.7%)</span></div>
+        <div class="ah-item"><span class="ah-key">Negative class</span><span class="ah-val">461 (76.3%)</span></div>
+        <div class="ah-item"><span class="ah-key">Total features</span><span class="ah-val">23 columns</span></div>
+        <div class="ah-item"><span class="ah-key">Features used (X)</span><span class="ah-val">6</span></div>
+        <div class="ah-item"><span class="ah-key">Train / test split</span><span class="ah-val">80% / 20%</span></div>
+        <div class="ah-item"><span class="ah-key">Dominant fertilisation</span><span class="ah-val">ICSI (98.2%)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- FEATURES -->
+<section class="section reveal" id="features">
+  <div class="sec-tag">Model features</div>
+  <h2>Six clinical inputs,<br>one prediction</h2>
+  <div class="feat-grid">
+    <div class="feat-cell">
+      <span class="feat-num">X₁</span>
+      <div class="feat-icon fi-rose">🎂</div>
+      <div class="feat-title">Age</div>
+      <div class="feat-desc">Patient age in years. Mean: 37.7 · Range: 18–55 · Contributes <strong>34.5%</strong> of model importance. Declining ovarian reserve with age is a key IVF predictor.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-num">X₂</span>
+      <div class="feat-icon fi-rose">⚖️</div>
+      <div class="feat-title">BMI</div>
+      <div class="feat-desc">Body Mass Index (kg/m²). Mean: 27.3 · Range: 16.5–56.1 · The <strong>dominant feature at 48.5%</strong> importance — BMI strongly influences ovarian response and implantation success.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-num">X₃</span>
+      <div class="feat-icon fi-teal">🔢</div>
+      <div class="feat-title">No. of Embryos Transferred</div>
+      <div class="feat-desc">Count of embryos transferred per cycle. 95.4% of patients received exactly 2 embryos — low variance limits this feature's contribution to just <strong>2.1%</strong>.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-num">X₄</span>
+      <div class="feat-icon fi-teal">🧫</div>
+      <div class="feat-title">Type of Embryo Transferred</div>
+      <div class="feat-desc">D5 blastocyst (91.9%) vs D3 cleavage stage (8.1%). Encoded: D3→0, D5→1. Blastocysts generally show higher implantation rates clinically.</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-num">X₅</span>
+      <div class="feat-icon fi-navy">🔬</div>
+      <div class="feat-title">Embryo Quality</div>
+      <div class="feat-desc">Morphological grade: Grade 1 (best) to Grade 4. 88.2% of embryos graded 2. Contributes <strong>5.4%</strong> importance. Encoded ordinally (0–4).</div>
+    </div>
+    <div class="feat-cell">
+      <span class="feat-num">X₆</span>
+      <div class="feat-icon fi-navy">🧬</div>
+      <div class="feat-title">Sperm Quality</div>
+      <div class="feat-desc">WHO grade A (best) to E. 76% Grade B. The <strong>most informative lab feature at 7.4%</strong> importance — improving on the 3-feature baseline by providing male-factor signal.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- RESULTS -->
+<section class="section reveal" id="results">
+  <div class="sec-tag">Model results</div>
+  <h2>Performance metrics &<br>confusion matrix</h2>
+
+  <div class="metrics-grid">
+    <div class="mc">
+      <div class="mc-val">70.25%</div>
+      <div class="mc-lbl">Accuracy</div>
+      <div class="mc-note">+4.2 pts vs 3-feature baseline</div>
+    </div>
+    <div class="mc">
+      <div class="mc-val">0.586</div>
+      <div class="mc-lbl">ROC-AUC</div>
+      <div class="mc-note">+0.043 vs baseline</div>
+    </div>
+    <div class="mc">
+      <div class="mc-val">72.7%</div>
+      <div class="mc-lbl">5-Fold CV Accuracy</div>
+      <div class="mc-note">±2.6% — stable generalisation</div>
+    </div>
+    <div class="mc">
+      <div class="mc-val">85.9%</div>
+      <div class="mc-lbl">Specificity</div>
+      <div class="mc-note">Correctly flags 79/92 non-pregnant</div>
+    </div>
+  </div>
+
+  <div class="cm-wrap">
+    <div>
+      <p style="font-size:.85rem;color:var(--mid);margin-bottom:16px">
+        The model was evaluated on a held-out test set of 121 patients (29 positive, 92 negative),
+        using a stratified 80/20 split to preserve the natural class ratio.
+      </p>
+      <div class="cm-table">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Predicted: No Pregnancy</th>
+              <th>Predicted: Pregnancy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="background:var(--navy);color:rgba(255,255,255,.6);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-align:left;padding:10px 14px">Actual: No Pregnancy</td>
+              <td class="cm-tn">79 <br><span style="font-size:10px;font-weight:400">True Negative</span></td>
+              <td class="cm-fp">13 <br><span style="font-size:10px;font-weight:400">False Positive</span></td>
+            </tr>
+            <tr>
+              <td style="background:var(--navy);color:rgba(255,255,255,.6);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-align:left;padding:10px 14px">Actual: Pregnancy</td>
+              <td class="cm-fn">23 <br><span style="font-size:10px;font-weight:400">False Negative</span></td>
+              <td class="cm-tp">6 <br><span style="font-size:10px;font-weight:400">True Positive</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="cm-side">
+      <div class="cm-card">
+        <div class="mc-val val-teal" style="font-family:var(--mono);font-size:1.3rem">77%</div>
+        <div class="mc-lbl" style="font-size:.78rem;color:var(--mid);margin-top:4px;line-height:1.5">
+          <strong>Precision</strong> for No Pregnancy class —<br>
+          when the model predicts no pregnancy, it is correct 77% of the time
+        </div>
+      </div>
+      <div class="cm-card">
+        <div class="mc-val val-rose" style="font-family:var(--mono);font-size:1.3rem">20.7%</div>
+        <div class="mc-lbl" style="font-size:.78rem;color:var(--mid);margin-top:4px;line-height:1.5">
+          <strong>Recall (Sensitivity)</strong> for Pregnancy class —
+          the model detects 6 of 29 actual pregnancies. Class imbalance and limited features explain this.
+        </div>
+      </div>
+      <div class="cm-card">
+        <div class="mc-val val-teal" style="font-family:var(--mono);font-size:1.3rem">31.6%</div>
+        <div class="mc-lbl" style="font-size:.78rem;color:var(--mid);margin-top:4px;line-height:1.5">
+          <strong>Precision</strong> for Pregnancy class —
+          of the 19 positive predictions made, 6 were correct
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feature Importance -->
+  <div style="margin-top:48px">
+    <div class="sec-tag" style="margin-bottom:12px">Feature importance</div>
+    <p style="font-size:.85rem;color:var(--mid);margin-bottom:24px">
+      Mean decrease in Gini impurity across all 100 trees in the forest
+    </p>
+    <div class="fi-list">
+      <div class="fi-item">
+        <div class="fi-name">BMI</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:48.5%;background:var(--rose)"></div></div>
+        <div class="fi-pct">48.5%</div>
+      </div>
+      <div class="fi-item">
+        <div class="fi-name">Age</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:34.5%;background:var(--navy3)"></div></div>
+        <div class="fi-pct">34.5%</div>
+      </div>
+      <div class="fi-item">
+        <div class="fi-name">Sperm Quality</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:7.4%;background:var(--teal)"></div></div>
+        <div class="fi-pct">7.4%</div>
+      </div>
+      <div class="fi-item">
+        <div class="fi-name">Embryo Quality</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:5.4%;background:var(--teal)"></div></div>
+        <div class="fi-pct">5.4%</div>
+      </div>
+      <div class="fi-item">
+        <div class="fi-name">Type of Embryo</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:2.1%;background:var(--soft)"></div></div>
+        <div class="fi-pct">2.1%</div>
+      </div>
+      <div class="fi-item">
+        <div class="fi-name">No. Embryos</div>
+        <div class="fi-bar-outer"><div class="fi-bar-inner" style="width:2.1%;background:var(--soft)"></div></div>
+        <div class="fi-pct">2.1%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- APP SECTION -->
+<section class="section reveal">
+  <div class="sec-tag">Streamlit deployment</div>
+  <h2>Live web app with<br>probability output</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start">
+    <div>
+      <p style="font-size:.9rem;color:var(--mid);line-height:1.8;margin-bottom:20px">
+        The trained model is deployed as a Streamlit application with a clean two-column layout.
+        Clinicians enter patient parameters using dropdown selects (for categorical features)
+        and number inputs. On prediction, the app returns both a classification result and
+        the raw probability score for both classes.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div style="display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--mid)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
+          Categorical features use <code style="font-size:.8em;background:var(--cream);padding:1px 6px;border-radius:3px">st.selectbox</code> with human-readable labels
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--mid)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
+          Input fed as a named <code style="font-size:.8em;background:var(--cream);padding:1px 6px;border-radius:3px">pd.DataFrame</code> — resolves sklearn feature name validation
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--mid)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
+          Probability scores displayed via <code style="font-size:.8em;background:var(--cream);padding:1px 6px;border-radius:3px">st.metric()</code>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--mid)">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--teal);flex-shrink:0"></span>
+          Input summary expandable table for audit trail
+        </div>
+      </div>
+      <a href="https://github.com/yourusername/pregnancy-prediction-app" class="btn btn-rose" target="_blank" style="display:inline-flex">
+        View app code on GitHub ↗
+      </a>
+    </div>
+    <div class="code-wrap">
+      <div class="code-bar">
+        <span class="cd cd-r"></span><span class="cd cd-y"></span><span class="cd cd-g"></span>
+        <span class="code-fn">preg_out_strml.py — key prediction block</span>
+      </div>
+      <pre><span class="cc"># Input as named DataFrame — exact column order</span>
+input_data = pd.DataFrame(
+    [[Age, BMI, No_Embryos,
+      Type_Embryo[<span class="cn">1</span>],
+      Embryo_Quality[<span class="cn">1</span>],
+      Sperm_Quality[<span class="cn">1</span>]]],
+    columns=[
+        <span class="cs">'Age'</span>, <span class="cs">'BMI'</span>,
+        <span class="cs">'No_Embryos_Transferred'</span>,
+        <span class="cs">'Type_Embryo'</span>,
+        <span class="cs">'Embryo_Quality'</span>,
+        <span class="cs">'Sperm_Quality'</span>
+    ]
+)
+
+prediction  = model<span class="cf">.predict(</span>input_data<span class="cf">)</span>[<span class="cn">0</span>]
+probability = model<span class="cf">.predict_proba(</span>input_data<span class="cf">)</span>[<span class="cn">0</span>]
+
+<span class="ck">if</span> prediction == <span class="cn">1</span>:
+    st<span class="cf">.success(</span><span class="cs">"Pregnancy Likely"</span><span class="cf">)</span>
+    st<span class="cf">.metric(</span><span class="cs">"Probability"</span>,
+             <span class="cf">f"</span><span class="cn">{probability[1]*100:.1f}</span><span class="cf">%"</span><span class="cf">)</span>
+<span class="ck">else</span>:
+    st<span class="cf">.error(</span><span class="cs">"Pregnancy Unlikely"</span><span class="cf">)</span></pre>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- TECH STACK -->
+<section class="section reveal">
+  <div class="sec-tag">Tech stack</div>
+  <h2>Built with</h2>
+  <div class="stack-grid">
+    <div class="stack-pill"><span class="stack-emoji">🐍</span><div class="stack-info"><div class="sn">Python 3</div><div class="sr">Core language</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">🌲</span><div class="stack-info"><div class="sn">scikit-learn</div><div class="sr">Random Forest · metrics</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">🎈</span><div class="stack-info"><div class="sn">Streamlit</div><div class="sr">Web app deployment</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">🐼</span><div class="stack-info"><div class="sn">Pandas</div><div class="sr">Data wrangling</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">🔢</span><div class="stack-info"><div class="sn">NumPy</div><div class="sr">Numerical ops</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">💾</span><div class="stack-info"><div class="sn">joblib</div><div class="sr">Model serialisation</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">🏷️</span><div class="stack-info"><div class="sn">LabelEncoder</div><div class="sr">Categorical encoding</div></div></div>
+    <div class="stack-pill"><span class="stack-emoji">☁️</span><div class="stack-info"><div class="sn">Streamlit Cloud</div><div class="sr">Free hosting</div></div></div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- FUTURE WORK -->
+<section class="section reveal">
+  <div class="sec-tag">Future work</div>
+  <h2>What comes next</h2>
+  <div class="fw-list">
+    <div class="fw-item">
+      <span class="fw-badge fw-high">High</span>
+      <div><div class="fw-title">Address class imbalance with SMOTE or class_weight</div>
+      <div class="fw-desc">The 76/24 class split suppresses recall on the pregnancy class to 20.7%. SMOTE oversampling or setting <code style="font-size:.8em">class_weight='balanced'</code> would directly improve sensitivity.</div></div>
+    </div>
+    <div class="fw-item">
+      <span class="fw-badge fw-high">High</span>
+      <div><div class="fw-title">Hyperparameter tuning via GridSearchCV</div>
+      <div class="fw-desc">Optimise <code style="font-size:.8em">n_estimators</code>, <code style="font-size:.8em">max_depth</code>, <code style="font-size:.8em">min_samples_leaf</code>, and <code style="font-size:.8em">max_features</code> to reduce overfitting and improve AUC.</div></div>
+    </div>
+    <div class="fw-item">
+      <span class="fw-badge fw-med">Medium</span>
+      <div><div class="fw-title">Incorporate ovarian reserve markers and stimulation protocol</div>
+      <div class="fw-desc">AMH levels, antral follicle count, and stimulation protocol are clinically proven IVF predictors that exist in the dataset but were not included in this model.</div></div>
+    </div>
+    <div class="fw-item">
+      <span class="fw-badge fw-med">Medium</span>
+      <div><div class="fw-title">Compare with XGBoost, SVM, and Logistic Regression</div>
+      <div class="fw-desc">Benchmark the Random Forest against gradient boosting and linear classifiers to identify the best-performing algorithm on this dataset.</div></div>
+    </div>
+    <div class="fw-item">
+      <span class="fw-badge fw-med">Medium</span>
+      <div><div class="fw-title">Add SHAP explainability to the Streamlit app</div>
+      <div class="fw-desc">Display a patient-level SHAP waterfall chart showing which features drove each individual prediction — critical for clinical trust and interpretability.</div></div>
+    </div>
+    <div class="fw-item">
+      <span class="fw-badge fw-low">Low</span>
+      <div><div class="fw-title">Time-series trend analysis (2010–2021)</div>
+      <div class="fw-desc">Analyse whether clinic success rates improved over the 11-year span and whether feature importance shifted over time — valuable for clinical audit.</div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="div"/>
+
+<!-- LINKEDIN HEADLINE -->
+<section class="section reveal" id="headline">
+  <div class="sec-tag">LinkedIn headline</div>
+  <h2>Copy-ready headline<br>& profile text</h2>
+
+  <div class="hl-box">
+    <div class="hl-label">Recommended LinkedIn headline</div>
+    <div class="hl-text" id="main-hl">
+      <strong>Data Scientist</strong> — Building ML-powered clinical tools that support
+      real medical decisions · IVF Outcome Prediction · Random Forest · Python · Streamlit
+    </div>
+    <div class="hl-variants">
+      <div class="hl-v">
+        <div class="hl-vtag">Variant A — Concise</div>
+        <div class="hl-vtext">Data Scientist | ML for Healthcare | IVF Pregnancy Outcome Prediction | Python · scikit-learn · Streamlit</div>
+      </div>
+      <div class="hl-v rec">
+        <div class="hl-vtag">Variant B — Impact-led</div>
+        <div class="hl-vtext">I build machine learning models that predict clinical outcomes — currently: IVF pregnancy prediction using Random Forest on 604 patient records | Python · Streamlit</div>
+      </div>
+      <div class="hl-v">
+        <div class="hl-vtag">Variant C — Role-focused</div>
+        <div class="hl-vtext">Data Scientist · Clinical ML · Deployed Prediction Apps | Random Forest · Pandas · Streamlit Cloud</div>
+      </div>
+    </div>
+    <button class="copy-btn" onclick="copyHL()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="copy-txt">Copy recommended headline</span>
+    </button>
+  </div>
+
+  <!-- About section text -->
+  <div style="background:var(--white);border:1px solid var(--line);border-radius:14px;padding:28px 32px">
+    <div style="font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin-bottom:14px">LinkedIn About Section — suggested text</div>
+    <p style="font-size:.9rem;color:var(--mid);line-height:1.85;margin-bottom:14px">
+      I am a data scientist with a focus on applying machine learning to solve real clinical problems. My recent work involves building a <strong>Random Forest Classifier</strong> to predict IVF pregnancy outcomes using 604 patient records from a reproductive medicine clinic spanning 2010 to 2021.
+    </p>
+    <p style="font-size:.9rem;color:var(--mid);line-height:1.85;margin-bottom:14px">
+      The model uses six clinical and embryological features — patient age, BMI, number and type of embryos transferred, embryo quality, and sperm quality — achieving <strong>70.3% accuracy</strong> and a cross-validated score of 72.7%. I deployed the model as a live <strong>Streamlit web application</strong> with probability-based outputs designed for clinical decision support.
+    </p>
+    <p style="font-size:.9rem;color:var(--mid);line-height:1.85">
+      I work across the full data science pipeline: data cleaning and preprocessing, feature engineering, model training, evaluation, and production deployment. I am particularly interested in healthcare AI, explainable ML, and building tools that make data science accessible to non-technical users.
+    </p>
+    <div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:8px">
+      <span style="background:var(--rose-lt);color:var(--rose-dk);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#MachineLearning</span>
+      <span style="background:var(--teal-lt);color:var(--teal-dk);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#HealthcareAI</span>
+      <span style="background:#e8edf5;color:var(--navy2);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#Python</span>
+      <span style="background:#e8edf5;color:var(--navy2);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#DataScience</span>
+      <span style="background:var(--rose-lt);color:var(--rose-dk);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#RandomForest</span>
+      <span style="background:var(--teal-lt);color:var(--teal-dk);border-radius:4px;padding:4px 12px;font-family:var(--mono);font-size:11px">#Streamlit</span>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">Pregnancy Outcome Predictor</div>
+  <p style="margin-bottom:8px;color:rgba(255,255,255,.5)">
+    Developed by <strong style="color:rgba(255,255,255,.75)">Olumodeji Ibukun</strong> &nbsp;·&nbsp;
+    Random Forest Classifier &nbsp;·&nbsp; ART Clinical Dataset 2010–2021
+  </p>
+  <p>
+    <a href="https://github.com/yourusername/pregnancy-prediction-app">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://linkedin.com/in/yourprofile">LinkedIn</a>
+    &nbsp;·&nbsp;
+    <a href="https://yourusername-pregnancy-predictor.streamlit.app">Live App</a>
+  </p>
+</footer>
+
+<script>
+const els = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver(e => {
+  e.forEach(x => { if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); }});
+}, {threshold: 0.06});
+els.forEach(el => io.observe(el));
+
+function copyHL() {
+  const txt = document.getElementById('main-hl').innerText;
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.getElementById('copy-txt');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy recommended headline', 2200);
+  });
+}
+</script>
+</body>
+</html>

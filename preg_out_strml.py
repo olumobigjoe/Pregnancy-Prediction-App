@@ -2,71 +2,133 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import joblib
-import pickle
 
-st.markdown(
-    """
-    <style>
-    /* Main background */
-    .stApp {
-        background-color: #1a3c6e,#2e6db4 !important;
-    }
-    
-    /* Global style for all buttons */
-    div.stButton > button {
-        background-color: #FF00B7 !important;
-        color: #FFFFFF !important;
-        border-radius: 5px;
-    }
+# ── Page config MUST be the very first Streamlit call ────────────────────────
+st.set_page_config(page_title="Pregnancy Outcome Predictor", layout="centered")
 
-    /* Styling inputs */
-    .stTextInput input, .stNumberInput input, .stSelectbox div {
-        background-color: #D0F2F6 !important;
-        color: #0A0A0A !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+# ── CSS styling ───────────────────────────────────────────────────────────────
+st.markdown("""
+<style>
+.stApp {
+    background-color: #f0f4fb;
+}
+div.stButton > button {
+    background-color: #FF00B7 !important;
+    color: #FFFFFF !important;
+    border-radius: 5px;
+    font-weight: bold;
+    width: 100%;
+}
+.stNumberInput input, .stSelectbox div {
+    background-color: #D0F2F6 !important;
+    color: #0A0A0A !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-theme = {
-        "textColor": "#262730",
-    "font": "sans serif"
-    }
-
-#Load the trained modl
+# ── Load model ────────────────────────────────────────────────────────────────
 model = joblib.load('pregnancy_outcome.pkl')
 
-# Streamlit application
-st.title("PREGNANCY PREDICTION APP")
+# ── UI ────────────────────────────────────────────────────────────────────────
+st.title("🤰 Pregnancy Outcome Prediction App")
 st.divider()
-#st.subheader("Input Features")
-st.write("Please provide the following information to predict the pregnancy outcome.")
-st.set_page_config(page_title="Pregnancy Outcome App", layout="centered")
+st.write("Please provide the following clinical information to predict the IVF pregnancy outcome.")
 
-# Input Features
-Age = st.number_input("Age ", min_value=18, max_value=50, value=30)
-BMI = st.number_input("(BMI)", min_value=10.0, max_value=50.0, value=25.0)
-Number_of_Embryos_transferred = st.number_input("Number of embryo(s) transfered? ", min_value=1, max_value=5, value=2)
-Type_Embryo = st.number_input("Type of embryo transferred" , min_value=0, max_value=1, value=1) #(1 for D5, 0 for D3)
-Embryo_Quality = st.number_input("Embryo Quality", min_value=0, max_value=4, value=1) #(0 for Grade1, 1 for Grade2, 2 for Grade2.5, 3 for Grade3, 4 for Grade4)"
-Sperm_Quality = st.number_input("Sperm Quality", min_value=0, max_value=4, value=1) #(A for 0, B for 1, C for 2, D for 3, E for 4)
+col1, col2 = st.columns(2)
 
-# Predict button
-if st.button("Predict Outcome"):
-    # Prepare the input data for prediction
-    input_data = np.array([[Age, BMI, Number_of_Embryos_transferred, Type_Embryo, Embryo_Quality, Sperm_Quality]])
-    
-    # Make prediction using the loaded model
-    prediction = model.predict(input_data)
-    
-    # Display the result
-    if prediction[0] == 1:
-        st.success("The predicted outcome is: Yes (Pregnancy Successful)")
+with col1:
+    Age = st.number_input(
+        "Age (years)",
+        min_value=18, max_value=55, value=35,
+        help="Patient age in years")
+
+    BMI = st.number_input(
+        "BMI (kg/m²)",
+        min_value=10.0, max_value=60.0, value=27.0, step=0.1,
+        help="Body Mass Index")
+
+    No_Embryos = st.number_input(
+        "Number of Embryos Transferred",
+        min_value=0, max_value=5, value=2,
+        help="How many embryos were transferred")
+
+with col2:
+    Type_Embryo = st.selectbox(
+        "Type of Embryo Transferred",
+        options=[("D5 — Day 5 Blastocyst", 1), ("D3 — Day 3 Cleavage", 0)],
+        format_func=lambda x: x[0],
+        help="D5 blastocysts generally have higher implantation rates")
+
+    Embryo_Quality = st.selectbox(
+        "Embryo Quality",
+        options=[
+            ("Grade 1 — Excellent", 0),
+            ("Grade 2 — Good",      1),
+            ("Grade 2.5 — Fair",    2),
+            ("Grade 3 — Poor",      3),
+            ("Grade 4 — Very Poor", 4),
+        ],
+        format_func=lambda x: x[0],
+        help="Morphological grade assigned to the embryo")
+
+    Sperm_Quality = st.selectbox(
+        "Sperm Quality",
+        options=[
+            ("Grade A — Best",     0),
+            ("Grade B — Good",     1),
+            ("Grade C — Moderate", 2),
+            ("Grade D — Poor",     3),
+            ("Grade E — Very Poor",4),
+        ],
+        format_func=lambda x: x[0],
+        help="WHO sperm quality classification")
+
+st.divider()
+
+# ── Predict ───────────────────────────────────────────────────────────────────
+if st.button("🔍 Predict Outcome"):
+
+    # Build DataFrame with EXACT column names the model was trained on
+    input_data = pd.DataFrame(
+        [[Age,
+          BMI,
+          No_Embryos,
+          Type_Embryo[1],       # extract encoded integer from tuple
+          Embryo_Quality[1],
+          Sperm_Quality[1]]],
+        columns=[
+            'Age',
+            'BMI',
+            'No_Embryos_Transferred',
+            'Type_Embryo',
+            'Embryo_Quality',
+            'Sperm_Quality'
+        ]
+    )
+
+    prediction    = model.predict(input_data)[0]
+    probability   = model.predict_proba(input_data)[0]
+    prob_positive = probability[1] * 100
+    prob_negative = probability[0] * 100
+
+    st.subheader("Prediction Result")
+
+    if prediction == 1:
+        st.success(f"✅ **Predicted Outcome: Pregnancy Likely**")
+        st.metric("Probability of Pregnancy",    f"{prob_positive:.1f}%")
+        st.metric("Probability of No Pregnancy", f"{prob_negative:.1f}%")
+        st.balloons()
     else:
-        st.error("The predicted outcome is: No (Pregnancy Unsuccessful)")   
+        st.error(f"❌ **Predicted Outcome: Pregnancy Unlikely**")
+        st.metric("Probability of No Pregnancy", f"{prob_negative:.1f}%")
+        st.metric("Probability of Pregnancy",    f"{prob_positive:.1f}%")
 
+    st.divider()
+    with st.expander("📋 Input summary"):
+        st.dataframe(input_data)
 
-
-#st.markdown("**Disclaimer**: This app provides pregnancy predictions for ART patients. Consult a gynecologist for clinical decisions.")
-st.caption("👨‍⚕️ Developed by Olumodeji Ibukun • Powered by Streamlit & Machine Learning")
-
-st.balloons()  # Celebration balloons
+# ── Footer ────────────────────────────────────────────────────────────────────
+st.caption(
+    "👨‍⚕️ Developed by Olumodeji Ibukun · Powered by Streamlit & Machine Learning  \n"
+    "⚠️ This app is for research purposes only. Consult a gynaecologist for clinical decisions."
+)

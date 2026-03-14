@@ -10,8 +10,8 @@ st.set_page_config(page_title="Pregnancy Outcome Predictor", layout="centered")
 st.markdown("""
 <style>
 .stApp {
-    background-color: #FFC0CB;
-    color: #32CD32;
+    background-color: #FFFFFF;
+    color: #00000;
 }
 div.stButton > button {
     background-color: #FF00B7 !important;
@@ -21,8 +21,8 @@ div.stButton > button {
     width: 100%;
 }
 .stNumberInput input, .stSelectbox div {
-    background-color: #000000 !important;
-    color: #FFFFFF !important;
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
 }
 </style>
 """, unsafe_allow_html=True)

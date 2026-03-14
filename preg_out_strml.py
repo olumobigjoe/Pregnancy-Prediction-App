@@ -14,7 +14,7 @@ st.markdown("""
     color: #00000;
 }
 div.stButton > button {
-    background-color: #FF00B7 !important;
+    background-color: #F08080 !important;
     color: #FFFFFF !important;
     border-radius: 5px;
     font-weight: bold;
@@ -22,7 +22,7 @@ div.stButton > button {
 }
 .stNumberInput input, .stSelectbox div {
     background-color: #F08080 !important;
-    color: #000000 !important;
+    color: #FFFFFF !important;
 }
 </style>
 """, unsafe_allow_html=True)

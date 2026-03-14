@@ -21,7 +21,7 @@ div.stButton > button {
     width: 100%;
 }
 .stNumberInput input, .stSelectbox div {
-    background-color: #D0F2F6 !important;
+    background-color: #FFFFFF !important;
     color: #000000 !important;
 }
 </style>

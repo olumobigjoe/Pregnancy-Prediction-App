@@ -22,7 +22,7 @@ div.stButton > button {
 }
 .stNumberInput input, .stSelectbox div {
     background-color: #FF00B7 !important;
-    color: #000000 !important;
+    color: #FFFFFF !important;
 }
 </style>
 """, unsafe_allow_html=True)

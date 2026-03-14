@@ -1,266 +1,362 @@
-# 🤖 Predicting IVF Pregnancy Outcomes with Random Forest
+# 🤖 Predicting IVF Pregnancy Outcomes with Random Forest Classifier
 
-> **Machine Learning for Assisted Reproductive Technology (ART) — Binary Classification using Random Forest Classifier**
+> **Machine Learning for Assisted Reproductive Technology (ART)**  
+> Binary classification model to predict IVF pregnancy outcomes using clinical and embryological features
+
+[![Python](https://img.shields.io/badge/Python-3.x-blue?style=flat-square&logo=python)](https://python.org)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-RandomForest-orange?style=flat-square)](https://scikit-learn.org)
+[![Dataset](https://img.shields.io/badge/Dataset-604_patients-green?style=flat-square)]()
+[![Accuracy](https://img.shields.io/badge/Accuracy-70.25%25-informational?style=flat-square)]()
+[![AUC](https://img.shields.io/badge/ROC--AUC-0.5856-yellow?style=flat-square)]()
 
 ---
 
 ## 📌 Project Overview
 
-This project applies a **Random Forest Classifier** to predict the outcome of In Vitro Fertilisation (IVF) procedures — specifically whether a patient will achieve a successful pregnancy — using three key clinical features: **patient age**, **BMI**, and **number of embryos transferred**.
+Assisted Reproductive Technology (ART), particularly In Vitro Fertilisation (IVF), involves complex clinical decision-making where patient outcomes are influenced by a combination of patient characteristics and embryological factors. This project builds a **Random Forest Classifier** to predict whether an IVF procedure will result in a successful pregnancy, using **six clinically relevant features** drawn from 604 real patient records spanning over a decade of practice (2010–2021).
 
-The dataset contains **604 real patient records** from an ART clinic, collected over an 11-year period (2010–2021), making this a genuine clinical prediction problem with real-world implications for reproductive medicine.
+The model addresses a real-world binary classification problem with direct implications for patient counselling, clinical planning, and the development of decision-support tools in reproductive medicine.
 
 ---
 
-## 🎯 Objective
+## 🎯 Problem Statement
 
 | Item | Detail |
 |---|---|
-| **Task** | Binary classification |
-| **Target variable (y)** | `Outcome` — `1` = Pregnancy achieved, `0` = No pregnancy |
-| **Features (X)** | `Age`, `BMI`, `Number of Embryos Transferred` |
+| **Task type** | Binary classification |
+| **Target variable (y)** | `Outcome` — `1` = Pregnancy achieved · `0` = No pregnancy |
+| **Input features (X)** | Age, BMI, No. of Embryos Transferred, Type of Embryo Transferred, Embryo Quality, Sperm Quality |
 | **Algorithm** | Random Forest Classifier |
-| **Framework** | Python · scikit-learn |
+| **Language / Library** | Python 3 · scikit-learn |
+| **Data split** | 80% training · 20% testing (stratified) |
 
 ---
 
-## 📂 Dataset Description
+## 📂 Dataset
+
+### Summary
 
 | Property | Value |
 |---|---|
-| Source | ART / IVF Clinic Records |
+| Source | ART / IVF clinic patient records |
 | Date range | July 2010 — November 2021 |
-| Total records | 604 patients |
+| Total records | **604 patients** |
 | Total features | 23 columns |
-| Missing values | Minimal (4 in date column, 2 in ovarian reserve) |
-| Target class balance | 76.3% negative (no pregnancy) · 23.7% positive (pregnancy) |
-
-### Full Feature List (23 columns)
-
-| Column | Type | Description |
-|---|---|---|
-| `Date of IVF Presentation` | Date | Date patient presented for IVF |
-| `Patient_ID` | Integer | Unique patient identifier |
-| `Age` | Integer | Patient age in years |
-| `Religion` | Categorical | Christianity (385), Islam (117), Others (102) |
-| `Tribe` | Categorical | Patient's ethnic group |
-| `Parity` | Integer | Number of previous pregnancies |
-| `Nos children alive` | Integer | Number of living children |
-| `(BMI)` | Float | Body Mass Index (kg/m²) |
-| `Stimulation protocol` | Categorical | Ovarian stimulation protocol used |
-| `Fertilization method` | Categorical | ICSI (593) or IVF (11) |
-| `Embryo Quality` | Categorical | Grade 1–4 (Grade 2 = 533 cases) |
-| `Endometrial preparation` | Categorical | Uterine lining preparation method |
-| `Pre-implantation genetic screening` | Binary | Whether PGS was performed |
-| `Number of embryo(s) transferred` | Integer | **Feature used in model** |
-| `Type of embryo transferred` | Categorical | Fresh or frozen embryo |
-| `Sperm Quality` | Categorical | Sperm assessment grade |
-| `Outcome` | Binary | **Target — 1 = pregnancy, 0 = no pregnancy** |
-| `IVF experience` | Categorical | Patient satisfaction rating |
-| `Ovarian reserve markers` | Categorical | AMH / AFC classification |
-| `Type of cycle` | Categorical | PC (418) or DC (186) |
-| `Was donor gamete used?` | Binary | 0 = own gamete, 1 = donor |
-| `Type of donor gamete used` | Categorical | Donor type if applicable |
-| `Complications developed` | Categorical | Post-procedure complications |
+| Features used in model | **6** |
+| Target classes | Binary (0 = No Pregnancy, 1 = Pregnancy) |
+| Missing values | Minimal — 4 in date field, 2 in ovarian reserve markers |
 
 ### Class Distribution
 
-```
-Outcome 0 (No Pregnancy) : 461 patients  (76.3%)
-Outcome 1 (Pregnancy)    : 143 patients  (23.7%)
-```
+| Class | Label | Count | Percentage |
+|---|---|---|---|
+| 0 | No Pregnancy | 461 | 76.3% |
+| 1 | Pregnancy | 143 | 23.7% |
 
-> ⚠️ **Imbalanced dataset** — the positive class (pregnancy) accounts for only 23.7% of records. This is clinically realistic but requires careful interpretation of model performance metrics.
+> ⚠️ **Class imbalance note:** The positive class (pregnancy) represents only 23.7% of records — a realistic clinical ratio, but one that biases classifiers toward predicting the majority class. This is a key factor in interpreting performance metrics.
 
 ---
 
-## 🔬 Feature Statistics
+## 🧪 Features Used in the Model
 
-### Age (`X₁`)
+Six features were selected as predictors based on clinical relevance:
+
+| # | Feature (X) | Original Column | Type | Description |
+|---|---|---|---|---|
+| 1 | `Age` | `Age` | Numeric | Patient age in years |
+| 2 | `BMI` | `(BMI)` | Numeric | Body Mass Index (kg/m²) |
+| 3 | `No_Embryos_Transferred` | `Number of embryo(s) transfered?` | Numeric | Count of embryos transferred in the cycle |
+| 4 | `Type_Embryo` | `Type of embryo transferred` | Categorical | D3 (Day 3) or D5 (Day 5 blastocyst) |
+| 5 | `Embryo_Quality` | `Embryo Quality` | Categorical | Grade 1, 2, 2.5, 3, or 4 |
+| 6 | `Sperm_Quality` | `Sperm Quality` | Categorical | Grades A, B, C, D, E |
+
+### Feature Distributions
+
+**Age**
+
 | Statistic | Value |
 |---|---|
 | Mean | 37.7 years |
 | Std Dev | 6.2 years |
-| Min | 18 years |
-| Max | 55 years |
+| Min – Max | 18 – 55 years |
 | Median (P50) | 37 years |
-| Q1 (P25) | 33 years |
-| Q3 (P75) | 42 years |
+| IQR (P25 – P75) | 33 – 42 years |
 
-### BMI (`X₂`)
+**BMI**
+
 | Statistic | Value |
 |---|---|
 | Mean | 27.3 kg/m² |
 | Std Dev | 3.7 kg/m² |
-| Min | 16.5 kg/m² |
-| Max | 56.1 kg/m² |
+| Min – Max | 16.5 – 56.1 kg/m² |
 | Median | 27.2 kg/m² |
 
-### Number of Embryos Transferred (`X₃`)
+**Number of Embryos Transferred**
+
 | Value | Count |
 |---|---|
 | 0 | 2 |
 | 1 | 19 |
-| 2 | 576 (most common) |
+| 2 | 576 ← dominant (95.4%) |
 | 3 | 1 |
 | 5 | 6 |
 
+**Type of Embryo Transferred**
+
+| Value | Count | Encoded |
+|---|---|---|
+| D5 (Day 5 / Blastocyst) | 555 (91.9%) | 1 |
+| D3 (Day 3 / Cleavage) | 49 (8.1%) | 0 |
+
+**Embryo Quality**
+
+| Grade | Count | Encoded |
+|---|---|---|
+| Grade 1 (Best) | 42 | 0 |
+| Grade 2 | 533 (88.2%) | 1 |
+| Grade 2.5 | 21 | 2 |
+| Grade 3 | 5 | 3 |
+| Grade 4 | 3 | 4 |
+
+**Sperm Quality**
+
+| Grade | Count | Encoded |
+|---|---|---|
+| A (Best) | 21 | 0 |
+| B | 459 (76.0%) | 1 |
+| C | 112 (18.5%) | 2 |
+| D | 8 | 3 |
+| E | 4 | 4 |
+
 ---
 
-## 🧠 Model Architecture
+## 🧠 Methodology
 
-### Algorithm: Random Forest Classifier
+### Preprocessing Pipeline
 
-A Random Forest is an ensemble learning method that builds multiple decision trees during training and outputs the class that is the mode of the classes predicted by individual trees. It is well-suited to clinical datasets because it handles non-linear relationships, is robust to outliers, and provides feature importance scores.
+```python
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+df = pd.read_excel("DATASET__ART_csv.xlsx")
+df.columns = df.columns.str.strip()
+
+# Select features and target
+X = df[['Age', '(BMI)', 'Number of embryo(s) transfered?',
+        'Type of embryo transferred', 'Embryo Quality', 'Sperm Quality']].copy()
+X.columns = ['Age', 'BMI', 'No_Embryos_Transferred',
+             'Type_Embryo', 'Embryo_Quality', 'Sperm_Quality']
+y = df['Outcome']
+
+# Encode categorical features
+le = LabelEncoder()
+for col in ['Type_Embryo', 'Embryo_Quality', 'Sperm_Quality']:
+    X[col] = le.fit_transform(X[col].astype(str).str.strip())
+```
+
+**Encoding map applied:**
+
+| Feature | Encoding |
+|---|---|
+| `Type_Embryo` | D3 → 0, D5 → 1 |
+| `Embryo_Quality` | Grade 1 → 0, Grade 2 → 1, Grade 2.5 → 2, Grade 3 → 3, Grade 4 → 4 |
+| `Sperm_Quality` | A → 0, B → 1, C → 2, D → 3, E → 4 |
+
+### Model Training
 
 ```python
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-# Features and target
-X = df[['Age', '(BMI)', 'Number of embryo(s) transfered?']]
-y = df['Outcome']
-
-# Train/test split — 80/20 stratified
+# Stratified 80/20 split — preserves class ratio in both subsets
 X_train, X_test, y_train, y_test = train_test_split(
     X, y,
     test_size=0.2,
     random_state=42,
-    stratify=y          # preserves class balance in both splits
+    stratify=y
 )
 
-# Model
+# Random Forest with 100 trees
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 ```
 
 ### Train / Test Split
 
-| Set | Records | Positive (Pregnancy) | Negative |
+| Subset | Records | Positive (Pregnancy) | Negative |
 |---|---|---|---|
-| Training | 483 (80%) | ~115 | ~368 |
-| Testing | 121 (20%) | 29 | 92 |
+| Training set | 483 (80%) | ~114 | ~369 |
+| Testing set | 121 (20%) | 29 | 92 |
 
 ---
 
-## 📊 Model Performance
+## 📊 Results
 
-### Key Metrics
+### Core Performance Metrics
 
-| Metric | Score |
+| Metric | Value |
 |---|---|
-| **Accuracy** | 66.1% |
-| **ROC-AUC** | 0.5425 |
-| **5-Fold CV Accuracy** | 70.5% ± 2.2% |
+| **Accuracy** | **70.25%** |
+| **ROC-AUC** | **0.5856** |
+| **Precision (Pregnancy class)** | 31.6% |
+| **Recall / Sensitivity (Pregnancy class)** | 20.7% |
+| **F1-Score (Pregnancy class)** | 0.25 |
+| **Specificity (No Pregnancy class)** | 85.9% |
+| **5-Fold CV Accuracy** | 72.7% ± 2.6% |
+| **5-Fold CV ROC-AUC** | 0.583 ± 0.041 |
 
 ### Classification Report
 
 ```
-                 Precision    Recall    F1-Score    Support
-No Pregnancy       0.76        0.80       0.78        92
-   Pregnancy       0.25        0.21       0.23        29
+                  Precision    Recall    F1-Score    Support
+No Pregnancy        0.77        0.86       0.81         92
+   Pregnancy        0.32        0.21       0.25         29
 
-    Accuracy                              0.66       121
-   Macro Avg       0.51        0.51       0.50       121
-Weighted Avg       0.64        0.66       0.65       121
+    Accuracy                               0.70        121
+   Macro Avg        0.55        0.53       0.53        121
+Weighted Avg        0.66        0.70       0.68        121
 ```
 
 ### Confusion Matrix
 
 ```
-                    Predicted: No      Predicted: Yes
-Actual: No              74  (TN)            18  (FP)
-Actual: Yes             23  (FN)             6  (TP)
+                     Predicted: No Pregnancy    Predicted: Pregnancy
+Actual: No Pregnancy       79  (TN)                  13  (FP)
+Actual: Pregnancy          23  (FN)                   6  (TP)
 ```
 
-| Term | Value | Meaning |
+| Metric | Value | Meaning |
 |---|---|---|
-| True Negatives (TN) | 74 | Correctly predicted no pregnancy |
-| False Positives (FP) | 18 | Incorrectly predicted pregnancy |
-| False Negatives (FN) | 23 | Missed actual pregnancies |
-| True Positives (TP) | 6 | Correctly predicted pregnancy |
+| True Negatives (TN) | **79** | Correctly predicted no pregnancy |
+| False Positives (FP) | **13** | Incorrectly predicted pregnancy when there was none |
+| False Negatives (FN) | **23** | Missed actual pregnancies (critical in clinical context) |
+| True Positives (TP) | **6** | Correctly predicted pregnancy |
+
+### Improvement Over 3-Feature Baseline
+
+Expanding from 3 features (Age, BMI, Embryos) to 6 features (adding Type, Quality, Sperm) produced measurable gains across all metrics:
+
+| Metric | 3-Feature Model | 6-Feature Model | Change |
+|---|---|---|---|
+| Accuracy | 66.1% | **70.25%** | +4.2 pts |
+| ROC-AUC | 0.5425 | **0.5856** | +0.043 |
+| CV Accuracy | 70.5% | **72.7%** | +2.2 pts |
+| CV AUC | — | **0.583** | — |
+| Precision (pos) | 25.0% | **31.6%** | +6.6 pts |
+| F1-Score (pos) | 0.23 | **0.25** | +0.02 |
 
 ---
 
 ## 🌟 Feature Importance
 
-The Random Forest assigns importance scores to each feature based on the mean decrease in impurity across all trees:
+The Random Forest computes importance as the mean decrease in Gini impurity across all 100 trees:
 
 | Rank | Feature | Importance Score | Contribution |
 |---|---|---|---|
-| 1 | **BMI** | 0.6243 | 62.4% |
-| 2 | **Age** | 0.3550 | 35.5% |
-| 3 | **No. Embryos Transferred** | 0.0207 | 2.1% |
+| 🥇 1 | **BMI** | 0.4849 | **48.5%** |
+| 🥈 2 | **Age** | 0.3451 | **34.5%** |
+| 🥉 3 | **Sperm Quality** | 0.0735 | **7.4%** |
+| 4 | **Embryo Quality** | 0.0544 | **5.4%** |
+| 5 | **Type of Embryo** | 0.0212 | **2.1%** |
+| 6 | **No. Embryos Transferred** | 0.0208 | **2.1%** |
 
-> **BMI dominates** with 62.4% of the model's decision-making weight, followed by Age at 35.5%. Number of embryos transferred contributed only 2.1%, likely because 95.4% of patients had exactly 2 embryos transferred — giving the model almost no variance to learn from on that feature.
+**Key observations:**
+
+- **BMI and Age together account for 83% of model decisions** — consistent with clinical evidence that patient demographics are strong predictors in IVF.
+- **Sperm Quality (7.4%) and Embryo Quality (5.4%)** are the most informative laboratory features — they improve model performance compared to the 3-feature baseline.
+- **Type of embryo transferred and number transferred contributed only ~2% each** — largely because 91.9% of transfers were Day 5 blastocysts and 95.4% involved exactly 2 embryos, leaving little variance for the model to learn from.
 
 ---
 
-## 🔍 Interpretation & Discussion
+## 🔍 Discussion
 
-### What the model captures well
-- The model achieves **76.3% accuracy on the majority class** (no pregnancy), correctly identifying 74 of 92 non-pregnant outcomes on the test set.
-- **Cross-validation accuracy of 70.5%** suggests the model generalises reasonably across folds.
+### What the model does well
+
+- Achieves **86% specificity** — correctly identifies 79 of 92 patients who will not achieve pregnancy, which is useful for clinical resource planning.
+- **Cross-validation accuracy of 72.7%** with low variance (±2.6%) indicates stable generalisation across folds.
+- Adding embryological features over the 3-feature baseline improved all performance metrics.
 
 ### Limitations
 
-**1. Class imbalance**
-With only 23.7% positive cases, the model is biased toward predicting the majority class. The **recall for the pregnancy class is only 21%** — meaning the model misses 79% of actual pregnancies. In a clinical context, this is a critical failure mode.
+**1. Persistent class imbalance effect**
+Despite using stratified splitting, the model's recall on the positive (pregnancy) class remains low at 20.7%. It correctly identifies only 6 of 29 actual pregnancies in the test set. In clinical practice, false negatives (missed pregnancies) carry significant counselling implications.
 
-**2. Limited feature set**
-Only 3 of 23 available features were used. Key clinical predictors — embryo quality, ovarian reserve markers, stimulation protocol, sperm quality, and type of cycle — were excluded. Including these would likely improve predictive performance substantially.
+**2. Near-constant categorical features**
+Both `Type of Embryo` (91.9% Day 5) and `No. of Embryos Transferred` (95.4% = 2) have very low variance. They provide minimal discrimination power and their 2.1% importance reflects this.
 
-**3. Low embryo transfer variance**
-95.4% of patients received exactly 2 embryos, making `Number of Embryos Transferred` near-constant and therefore nearly useless as a predictive feature.
+**3. Ordinal encoding of categorical data**
+`Embryo Quality` and `Sperm Quality` were label-encoded as ordinal integers (e.g. Grade 1→0, Grade 2→1). While clinically reasonable, Random Forests may benefit from one-hot encoding for nominal categories.
 
-**4. ROC-AUC of 0.54**
-A ROC-AUC near 0.5 indicates the model is barely better than random chance at distinguishing between pregnant and non-pregnant outcomes — reinforcing the need for richer features.
+**4. ROC-AUC of 0.59**
+While improved from the 3-feature baseline, an AUC of 0.59 still reflects limited discriminative ability — the model is better than random, but not yet clinically reliable for individual prediction.
 
-### Clinical Implications
-These results suggest that **age and BMI alone are insufficient** to accurately predict IVF outcomes. A clinically useful model would require incorporation of laboratory parameters (embryo grading, AMH levels, antral follicle count) and procedural variables (stimulation protocol, number of oocytes retrieved).
+**5. No hyperparameter optimisation**
+The model used default hyperparameters (n_estimators=100). Grid search over `max_depth`, `min_samples_leaf`, and `max_features` would likely improve performance.
 
 ---
 
 ## 🚀 Reproducing the Results
 
-### Requirements
+### 1. Install dependencies
 
 ```bash
-pip install pandas numpy scikit-learn openpyxl matplotlib seaborn
+pip install pandas numpy scikit-learn openpyxl
 ```
 
-### Steps
+### 2. Full reproducible script
 
 ```python
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.metrics import (classification_report, confusion_matrix,
+                              accuracy_score, roc_auc_score)
+from sklearn.preprocessing import LabelEncoder
 
-# 1. Load data
+# ── Load ──────────────────────────────────────────────────────────────────────
 df = pd.read_excel("DATASET__ART_csv.xlsx")
 df.columns = df.columns.str.strip()
 
-# 2. Define features and target
-X = df[['Age', '(BMI)', 'Number of embryo(s) transfered?']]
+# ── Features & Target ─────────────────────────────────────────────────────────
+X = df[['Age', '(BMI)', 'Number of embryo(s) transfered?',
+        'Type of embryo transferred', 'Embryo Quality', 'Sperm Quality']].copy()
+X.columns = ['Age', 'BMI', 'No_Embryos_Transferred',
+             'Type_Embryo', 'Embryo_Quality', 'Sperm_Quality']
 y = df['Outcome']
 
-# 3. Split
+# ── Encode Categoricals ───────────────────────────────────────────────────────
+le = LabelEncoder()
+for col in ['Type_Embryo', 'Embryo_Quality', 'Sperm_Quality']:
+    X[col] = le.fit_transform(X[col].astype(str).str.strip())
+
+# ── Split ─────────────────────────────────────────────────────────────────────
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y)
 
-# 4. Train
+# ── Train ─────────────────────────────────────────────────────────────────────
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)
 
-# 5. Evaluate
+# ── Evaluate ──────────────────────────────────────────────────────────────────
 y_pred = rf.predict(X_test)
 y_prob = rf.predict_proba(X_test)[:, 1]
 
-print(f"Accuracy : {rf.score(X_test, y_test):.4f}")
+print(f"Accuracy : {accuracy_score(y_test, y_pred):.4f}")
 print(f"ROC-AUC  : {roc_auc_score(y_test, y_prob):.4f}")
-print(classification_report(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
+print(classification_report(y_test, y_pred,
+      target_names=['No Pregnancy', 'Pregnancy']))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
+# ── Cross-Validation ──────────────────────────────────────────────────────────
+cv = cross_val_score(rf, X, y,
+                     cv=StratifiedKFold(5, shuffle=True, random_state=42),
+                     scoring='accuracy')
+print(f"\n5-Fold CV Accuracy: {cv.mean():.4f} ± {cv.std():.4f}")
+
+# ── Feature Importance ────────────────────────────────────────────────────────
+fi = pd.Series(rf.feature_importances_, index=X.columns).sort_values(ascending=False)
+print("\nFeature Importances:\n", fi)
 ```
 
 ---
@@ -269,56 +365,56 @@ print(confusion_matrix(y_test, y_pred))
 
 ```
 art-ivf-outcome-prediction/
-├── art_rf_classifier.py          ← main model script
-├── DATASET__ART_csv.xlsx         ← raw dataset (604 records, 23 features)
+├── art_rf_classifier.py              ← main model script
+├── DATASET__ART_csv.xlsx             ← raw dataset (604 records, 23 features)
 ├── notebooks/
-│   └── ART_Analysis.ipynb        ← exploratory data analysis notebook
+│   └── ART_RF_Analysis.ipynb         ← full EDA + modelling notebook
 ├── outputs/
-│   ├── confusion_matrix.png      ← confusion matrix heatmap
-│   ├── roc_curve.png             ← ROC curve plot
-│   └── feature_importance.png    ← feature importance bar chart
-└── README.md                     ← this file
+│   ├── confusion_matrix.png          ← confusion matrix heatmap
+│   ├── roc_curve.png                 ← ROC curve plot
+│   └── feature_importance.png        ← feature importance bar chart
+└── README.md                         ← this file
 ```
 
 ---
 
 ## 🔭 Future Work
 
-| Enhancement | Expected Benefit |
-|---|---|
-| Include all 23 features | Richer signal for the classifier |
-| Handle class imbalance (SMOTE / class_weight) | Improve recall on the positive class |
-| Hyperparameter tuning (GridSearchCV) | Optimise n_estimators, max_depth, min_samples_split |
-| Compare with other classifiers (XGBoost, SVM, Logistic Regression) | Identify best-performing algorithm |
-| Incorporate embryo quality and ovarian reserve markers | These are clinically proven predictors |
-| Time-series analysis across the 2010–2021 span | Detect trend improvements in clinic outcomes |
-| SHAP values for explainability | Understand individual patient predictions |
+| Priority | Enhancement | Expected Benefit |
+|---|---|---|
+| 🔴 High | **Handle class imbalance** with SMOTE or `class_weight='balanced'` | Drastically improve recall on the pregnancy class |
+| 🔴 High | **Hyperparameter tuning** — GridSearchCV over `max_depth`, `n_estimators`, `min_samples_leaf` | Optimise tree complexity and reduce overfitting |
+| 🟡 Medium | **Include all 23 features** — ovarian reserve markers, stimulation protocol, endometrial preparation | Richer signal for the classifier |
+| 🟡 Medium | **One-hot encode** `Embryo_Quality` and `Sperm_Quality` instead of ordinal encoding | Avoid false ordinal assumptions |
+| 🟡 Medium | **Compare classifiers** — XGBoost, Logistic Regression, SVM, GradientBoosting | Identify best-performing algorithm |
+| 🟢 Low | **SHAP values** for patient-level explainability | Understand which features drive each prediction |
+| 🟢 Low | **Time-series analysis** across 2010–2021 | Detect outcome improvement trends over the decade |
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Tool | Purpose |
-|---|---|
-| Python 3 | Core language |
-| scikit-learn | Random Forest, train/test split, metrics |
-| Pandas | Data loading and preprocessing |
-| NumPy | Numerical operations |
-| Matplotlib / Seaborn | Visualisations |
-| openpyxl | Reading `.xlsx` files |
+| Tool | Version | Purpose |
+|---|---|---|
+| Python | 3.x | Core language |
+| scikit-learn | ≥ 1.0 | Random Forest, metrics, preprocessing |
+| Pandas | ≥ 1.3 | Data loading and wrangling |
+| NumPy | ≥ 1.21 | Numerical operations |
+| openpyxl | ≥ 3.0 | Reading `.xlsx` files |
+| Matplotlib / Seaborn | ≥ 3.4 | Visualisations |
 
 ---
 
-## 📄 Dataset Ethics Note
+## 📋 Dataset Ethics Note
 
-This dataset contains de-identified patient records from an ART clinic. All analyses are conducted strictly for academic and research purposes. No personally identifiable information is used or disclosed.
+This dataset contains de-identified patient records from an ART clinic. All analyses are conducted for academic and research purposes only. No personally identifiable information is used or disclosed in this repository.
 
 ---
 
 ## 📄 License
 
-MIT — free to use and adapt for research purposes.
+MIT — free to use and adapt for non-commercial research purposes.
 
 ---
 
-*Random Forest Classifier · IVF Outcome Prediction · ART Clinical Dataset (2010–2021)*
+*Random Forest Classifier · IVF / ART Outcome Prediction · Clinical Dataset 2010–2021 · 604 patients · 6 features*

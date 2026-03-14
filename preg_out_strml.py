@@ -10,7 +10,7 @@ st.set_page_config(page_title="Pregnancy Outcome Predictor", layout="centered")
 st.markdown("""
 <style>
 .stApp {
-    background-color: #FFCOCB;
+    background-color: #FFC0CB;
     color: #FFFFFF;
 }
 div.stButton > button {

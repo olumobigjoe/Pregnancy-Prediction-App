@@ -107,21 +107,16 @@ if st.button("🔍 Predict Outcome"):
     )
 
     prediction    = model.predict(input_data)[0]
-    probability   = model.predict_proba(input_data)[0]
-    prob_positive = probability[1] * 100
-    prob_negative = probability[0] * 100
-
+    
     st.subheader("Prediction Result")
 
     if prediction == 1:
         st.success(f"✅ **Predicted Outcome: Pregnancy Likely**")
-        st.metric("Probability of Pregnancy",    f"{prob_positive:.1f}%")
-        st.metric("Probability of No Pregnancy", f"{prob_negative:.1f}%")
+        
         st.balloons()
     else:
         st.error(f"❌ **Predicted Outcome: Pregnancy Unlikely**")
-        st.metric("Probability of No Pregnancy", f"{prob_negative:.1f}%")
-        st.metric("Probability of Pregnancy",    f"{prob_positive:.1f}%")
+        
 
     st.divider()
     with st.expander("📋 Input summary"):
